@@ -1,32 +1,51 @@
-#include "parser.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include "parser.h"
 
-Command* parse_command(char* input) {
-    Command* cmd = malloc(sizeof(Command));
-    if (!cmd) return NULL;
-
-    cmd->background = 0;
-    int i = 0;
-
-    char* token = strtok(input, " \t\n");
-    while (token != NULL && i < MAX_ARGS - 1) {
-        if (strcmp(token, "&") == 0) {
-            cmd->background = 1;
-        } else {
-            cmd->args[i++] = strdup(token);
-        }
-        token = strtok(NULL, " \t\n");
+Command** parse_pipeline(char* input, int* count) {
+    char* segments[MAX_ARGS];
+    int seg_count = 0;
+    char* token = strtok(input, "|");
+    while (token && seg_count < MAX_ARGS) {
+        segments[seg_count++] = token;
+        token = strtok(NULL, "|");
     }
 
-    cmd->args[i] = NULL;
-    return cmd;
+    Command** commands = malloc(sizeof(Command*) * seg_count);
+    for (int i = 0; i < seg_count; i++) {
+        commands[i] = malloc(sizeof(Command));
+        commands[i]->input_redirect = NULL;
+        commands[i]->output_redirect = NULL;
+        commands[i]->background = 0;
+
+        char* arg = strtok(segments[i], " \t\n");
+        int argc = 0;
+        while (arg && argc < MAX_ARGS - 1) {
+            if (strcmp(arg, "<") == 0) {
+                arg = strtok(NULL, " \t\n");
+                commands[i]->input_redirect = strdup(arg);
+            } else if (strcmp(arg, ">") == 0) {
+                arg = strtok(NULL, " \t\n");
+                commands[i]->output_redirect = strdup(arg);
+            } else if (strcmp(arg, "&") == 0) {
+                commands[i]->background = 1;
+            } else {
+                commands[i]->args[argc++] = strdup(arg);
+            }
+            arg = strtok(NULL, " \t\n");
+        }
+        commands[i]->args[argc] = NULL;
+        commands[i]->name = commands[i]->args[0];
+    }
+    *count = seg_count;
+    return commands;
 }
 
-void free_command(Command* cmd) {
-    if (!cmd) return;
-    for (int i = 0; cmd->args[i] != NULL; i++) {
-        free(cmd->args[i]);
+void free_commands(Command** commands, int count) {
+    for (int i = 0; i < count; i++) {
+        free(commands[i]);
     }
-    free(cmd);
+    free(commands);
 }
