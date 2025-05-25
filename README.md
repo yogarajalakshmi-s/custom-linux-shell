@@ -2,7 +2,10 @@
 
 ## Overview
 
-`mysh` is a simple custom Linux shell implemented in C. It supports basic command execution such as running standard Linux commands (`ls`, `pwd`, etc.), along with built-in commands. This project demonstrates core shell functionality including command parsing, execution, and builtin command handling.
+`mysh` is a simple yet powerful custom Linux shell implemented in C. It replicates basic behavior of standard shells like `bash` or `sh`, allowing users to run Linux commands, built-in shell functions, and now supports features like piping, redirection, and background execution.  
+  
+This project demonstrates core systems programming concepts including process creation, file descriptor manipulation, command parsing, and signal handling.
+
 
 ---
 
@@ -30,10 +33,12 @@
 ---
 
 ## Features
-- Execute standard Linux commands (e.g., `ls`, `pwd`, `cat`)
-- Basic parsing of command line inputs
-- Support for built-in commands
-- Modular code structure separating parsing, execution, and utilities
+- Execute standard Linux commands (e.g., ls, pwd, cat)
+- Built-in commands (e.g., cd, exit)
+- Pipes (|) to connect multiple commands
+- Background process execution using &
+- Input (<) and output (>) redirection
+- Modular, extensible design
 
 ---
 
@@ -44,7 +49,7 @@
 3. Build the shell by running:
    ```bash
    make
-4. Run the executable
+4. Run the executable and test the above features
    ```bash
    ./mysh
 
