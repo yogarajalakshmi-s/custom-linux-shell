@@ -3,9 +3,11 @@
 #include <string.h>
 #include "parser.h"
 #include "executor.h"
+#include "builtins.h"
 
 int main() {
     char input[1024];
+
     while (1) {
         printf("mysh> ");
         if (!fgets(input, sizeof(input), stdin)) break;
@@ -14,11 +16,18 @@ int main() {
 
         int count;
         Command** cmds = parse_pipeline(input, &count);
+
         if (count == 1) {
-            execute_command(cmds[0]);
-        } else {
+            if (is_builtin(cmds[0]->args[0])) {
+                run_builtin(cmds[0]);
+            } else {
+                execute_command(cmds[0]);
+            }
+        }
+        else {
             execute_pipeline(cmds, count);
         }
+
         free_commands(cmds, count);
     }
     return 0;
